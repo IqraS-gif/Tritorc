@@ -12,7 +12,7 @@
  *   - onDeleteBatch  : (id: string) => void — deletes specific batch
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 
 export function ScanHistoryModal({
   isOpen,
@@ -23,25 +23,22 @@ export function ScanHistoryModal({
   onClearHistory,
   onDeleteBatch,
 }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
     <div
-      style={{
-        position:       "fixed",
-        top:            0,
-        left:           0,
-        right:          0,
-        bottom:         0,
-        background:     "rgba(15, 23, 42, 0.5)",
-        backdropFilter: "blur(4px)",
-        zIndex:         1000,
-        display:        "flex",
-        alignItems:     "center",
-        justifyContent: "center",
-        padding:        "20px",
-        animation:      "fadeIn 0.2s ease",
-      }}
+      className="modal-backdrop"
       onClick={onClose}
     >
       <div
@@ -180,14 +177,6 @@ export function ScanHistoryModal({
                       >
                         Load Results
                       </button>
-
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => onDeleteBatch(batch._id)}
-                        title="Delete batch"
-                      >
-                        ✕
-                      </button>
                     </div>
                   </div>
                 );
@@ -209,13 +198,6 @@ export function ScanHistoryModal({
             <span style={{ fontSize: "0.78rem", color: "var(--clr-text-muted)" }}>
               {history.length} historical scan batch{history.length !== 1 ? "es" : ""} stored in MongoDB
             </span>
-
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={onClearHistory}
-            >
-              Clear All History
-            </button>
           </div>
         )}
       </div>

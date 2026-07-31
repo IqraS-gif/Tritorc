@@ -37,8 +37,8 @@ async function scanDocuments(req, res) {
 
     for (const file of req.files) {
       try {
-        // 1. Extract plain text from the uploaded buffer
-        const text = await extractText(
+        // 1. Extract plain text & HTML from the uploaded buffer
+        const { text, html } = await extractText(
           file.buffer,
           file.mimetype,
           file.originalname
@@ -56,6 +56,8 @@ async function scanDocuments(req, res) {
           matchCount,
           relevance,
           error: null,
+          text,
+          html: html || null,
           // Spread all 20 metadata fields into the result
           ...metadata,
         });

@@ -111,7 +111,15 @@ export function useScanner() {
       await new Promise((r) => setTimeout(r, 600));
 
       setUploadProgress(100);
-      setResults(data.results || []);
+      const enrichedResults = (data.results || []).map((res) => {
+        const matchedFile = files.find((f) => f.name === res.fileName);
+        return {
+          ...res,
+          fileObj: matchedFile || null,
+          blobUrl: matchedFile ? URL.createObjectURL(matchedFile) : null,
+        };
+      });
+      setResults(enrichedResults);
       setStatus("done");
 
       const errorCount = (data.results || []).filter((r) => r.error).length;

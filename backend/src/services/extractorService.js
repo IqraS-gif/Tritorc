@@ -14,26 +14,27 @@ const mammoth = require("mammoth");
 /**
  * Extract text from a PDF buffer.
  * @param {Buffer} buffer - Raw PDF file buffer
- * @returns {Promise<string>} Extracted plain text
+ * @returns {Promise<{ text: string, html: string|null }>} Extracted text and html
  */
 async function extractFromPDF(buffer) {
   try {
     const data = await pdfParse(buffer);
-    return data.text || "";
+    return { text: data.text || "", html: null };
   } catch (err) {
     throw new Error(`PDF extraction failed: ${err.message}`);
   }
 }
 
 /**
- * Extract text from a DOCX buffer.
+ * Extract text and HTML from a DOCX buffer.
  * @param {Buffer} buffer - Raw DOCX file buffer
- * @returns {Promise<string>} Extracted plain text
+ * @returns {Promise<{ text: string, html: string }>} Extracted plain text and HTML
  */
 async function extractFromDOCX(buffer) {
   try {
-    const result = await mammoth.extractRawText({ buffer });
-    return result.value || "";
+    const rawResult = await mammoth.extractRawText({ buffer });
+    const htmlResult = await mammoth.convertToHtml({ buffer });
+    return { text: rawResult.value || "", html: htmlResult.value || "" };
   } catch (err) {
     throw new Error(`DOCX extraction failed: ${err.message}`);
   }
@@ -45,7 +46,7 @@ async function extractFromDOCX(buffer) {
  * @param {Buffer} buffer       - File buffer
  * @param {string} mimetype     - MIME type from multer
  * @param {string} originalname - Original filename
- * @returns {Promise<string>} Extracted plain text
+ * @returns {Promise<{ text: string, html: string|null }>} Extracted text and html
  */
 async function extractText(buffer, mimetype, originalname) {
   const ext = originalname.split(".").pop().toLowerCase();

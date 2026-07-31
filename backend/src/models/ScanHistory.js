@@ -10,6 +10,7 @@ const DocumentResultSchema = new mongoose.Schema({
   matchCount:         { type: Number, default: 0 },
   relevance:          { type: String, required: true },
   error:              { type: String, default: null },
+  text:               { type: String, default: "" },
   
   // Metadata fields
   tenderId:           { type: String, default: "Not Found" },

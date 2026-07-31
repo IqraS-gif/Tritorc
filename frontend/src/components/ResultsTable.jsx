@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from "react";
+import { DocumentViewerModal } from "./DocumentViewerModal.jsx";
 
 /** Relevance badge component */
 function RelevanceBadge({ relevance }) {
@@ -104,10 +105,19 @@ function KeywordsCell({ keywords, error }) {
 }
 
 export function ResultsTable({ results }) {
+  const [selectedDoc, setSelectedDoc] = useState(null);
+
   if (!results || results.length === 0) return null;
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
+      {/* Document modal */}
+      <DocumentViewerModal
+        isOpen={!!selectedDoc}
+        onClose={() => setSelectedDoc(null)}
+        result={selectedDoc}
+      />
+
       {/* Section header */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
         <div style={{
@@ -147,15 +157,16 @@ export function ResultsTable({ results }) {
         >
           {/* Column widths */}
           <colgroup>
-            <col style={{ width: "30%" }} />
-            <col style={{ width: "40%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "20%" }} />
+            <col style={{ width: "26%" }} />
+            <col style={{ width: "32%" }} />
+            <col style={{ width: "9%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "17%" }} />
           </colgroup>
 
           <thead>
             <tr style={{ background: "#f8fafc", borderBottom: "2px solid var(--clr-border)" }}>
-              {["Document Name", "Matched Keywords", "Matches", "Relevance"].map((header) => (
+              {["Document Name", "Matched Keywords", "Matches", "Relevance", "Actions"].map((header) => (
                 <th
                   key={header}
                   className={header === "Matched Keywords" ? "col-keywords" : undefined}
@@ -263,6 +274,37 @@ export function ResultsTable({ results }) {
                   }}
                 >
                   <RelevanceBadge relevance={result.relevance} />
+                </td>
+
+                {/* Actions */}
+                <td
+                  style={{
+                    padding:      "14px 16px",
+                    verticalAlign: "middle",
+                  }}
+                >
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setSelectedDoc(result)}
+                    title="View document text with highlighted keywords"
+                    style={{
+                      fontSize: "0.78rem",
+                      padding: "6px 12px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      borderRadius: "var(--radius-md)",
+                      fontWeight: 600,
+                      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    View Document
+                  </button>
                 </td>
               </tr>
             ))}

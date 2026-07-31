@@ -211,43 +211,6 @@ export default function App() {
                 )}
               </button>
 
-              {/* Download buttons — only shown when results exist */}
-              {isDone && results.length > 0 && (
-                <>
-                  <button
-                    id="download-btn"
-                    className="btn btn-accent"
-                    onClick={downloadReport}
-                    aria-label="Download standard Excel report"
-                    title="4 columns: Document, Keywords, Count, Relevance"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    Download Report
-                  </button>
-                  <button
-                    id="download-detailed-btn"
-                    className="btn btn-ghost"
-                    onClick={downloadDetailedReport}
-                    aria-label="Download detailed 24-column Excel report"
-                    title="24 columns including Tender ID, Authority, Dates, Amount, Scope of Work, etc."
-                    style={{ borderColor: "var(--clr-primary)", color: "var(--clr-primary)" }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    Detailed Report
-                  </button>
-                </>
-              )}
-
               {/* Clear button */}
               {(files.length > 0 || isDone) && (
                 <button
