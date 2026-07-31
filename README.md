@@ -15,16 +15,17 @@ A production-quality full-stack web application for scanning **PDF and DOCX tend
 
 ---
 
-## 📄 Included Sample Test Documents
+## 📄 Included GeM Tender Test Documents
 
-Three pre-generated test PDF files are included in the root directory to test each relevance score:
+Two authentic 6-page Government eMarketplace (GeM) tender documents are generated in the root directory for testing:
 
-1. **`sample_tender_relevant.pdf`** — Refinery Shutdown Maintenance SOW  
-   - *Result*: **11 matches** → Relevance: **Yes**
-2. **`sample_tender_borderline.pdf`** — General Mechanics Workshop Tool Procurement  
-   - *Result*: **2 matches** → Relevance: **Possible**
-3. **`sample_tender_not_relevant.pdf`** — Enterprise Cloud & IT Infrastructure Tender  
-   - *Result*: **0 matches** → Relevance: **No**
+1. **`GeM-Bidding-High-Relevance.pdf`** (6 Pages / 9,060 chars)  
+   - *Scope*: Refinery Shutdown Maintenance & Controlled Bolting Services (IOCL Gujarat Refinery)  
+   - *Result*: **13 matched keywords** → Relevance: **Yes**
+
+2. **`GeM-Bidding-Borderline-Relevance.pdf`** (6 Pages / 8,354 chars)  
+   - *Scope*: General Hardware & Workshop Consumables Procurement (BHEL Haridwar)  
+   - *Result*: **2 matched keywords** → Relevance: **Possible**
 
 ---
 
@@ -32,14 +33,13 @@ Three pre-generated test PDF files are included in the root directory to test ea
 
 ```
 DocumentRetrivelTritoric/
-├── sample_tender_relevant.pdf       ← Test PDF (Yes score)
-├── sample_tender_borderline.pdf     ← Test PDF (Possible score)
-├── sample_tender_not_relevant.pdf   ← Test PDF (No score)
-├── backend/                         Node.js + Express API
+├── GeM-Bidding-High-Relevance.pdf       ← 6-Page GeM Test PDF (Yes score)
+├── GeM-Bidding-Borderline-Relevance.pdf ← 6-Page GeM Test PDF (Possible score)
+├── backend/                              Node.js + Express API
 │   ├── src/
-│   │   ├── app.js                   Entry point
+│   │   ├── app.js                        Entry point
 │   │   ├── config/
-│   │   │   └── keywords.js          Keyword config with regex patterns ← edit here
+│   │   │   └── keywords.js               Keyword config with regex patterns ← edit here
 │   │   ├── controllers/
 │   │   │   └── scanController.js
 │   │   ├── middleware/
@@ -47,15 +47,15 @@ DocumentRetrivelTritoric/
 │   │   ├── routes/
 │   │   │   └── scanRoutes.js
 │   │   └── services/
-│   │       ├── extractorService.js  PDF/DOCX text extraction
-│   │       ├── matcherService.js    Keyword matching engine
-│   │       └── reportService.js     Excel generation
+│   │       ├── extractorService.js       PDF/DOCX text extraction
+│   │       ├── matcherService.js         Keyword matching engine
+│   │       └── reportService.js          Excel generation
 │   ├── scripts/
-│   │   └── generateSamples.js       PDFKit script to regenerate test PDFs
+│   │   └── generateGeMSamples.js         Script to regenerate 6-page GeM PDFs
 │   ├── .env.example
 │   └── package.json
 │
-└── frontend/                        React + Vite (Red & White Light Theme)
+└── frontend/                             React + Vite (Red & White Light Theme)
     ├── src/
     │   ├── App.jsx
     │   ├── main.jsx
