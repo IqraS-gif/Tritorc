@@ -91,9 +91,13 @@ Tritorc-Relevance-Checker/
     └── package.json
 ```
 
----
+## 🚀 Quick Start (How to Run Locally)
 
-## 🚀 Quick Start (Local Setup)
+> [!IMPORTANT]
+> **⚡ ZERO DATABASE SETUP REQUIRED**: 
+> You **DO NOT** need to configure a `MONGODB_URI` or install MongoDB to run the application locally! Core features (**PDF/DOCX file uploading**, **text extraction**, **fuzzy keyword scanning**, **relevance verdict computation**, and **Excel report generation**) function **100% out of the box** without MongoDB.
+>
+> *(MongoDB connection is purely optional for saving scan history logs — if omitted, the app automatically runs in in-memory mode).*
 
 ### Prerequisites
 
@@ -102,29 +106,31 @@ Tritorc-Relevance-Checker/
 
 ---
 
-### 1. Backend Setup
+### Step 1 — Backend Setup
+
+Open terminal and run:
 
 ```bash
 cd backend
 
-# Copy environment file
+# Copy environment file (Optional)
 copy .env.example .env
 
 # Install dependencies
 npm install
 
-# Start dev server
+# Start Express backend server
 npm run dev
 ```
 
-> Backend runs at `http://localhost:5000`  
-> Health check: `http://localhost:5000/health`
+> 🟢 **Backend URL**: `http://localhost:5000`  
+> 🏥 **Health Check**: `http://localhost:5000/health`
 
 ---
 
-### 2. Frontend Setup
+### Step 2 — Frontend Setup
 
-In a new terminal window:
+Open a **second terminal window** and run:
 
 ```bash
 cd frontend
@@ -132,11 +138,11 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start Vite dev server
+# Start Vite React frontend server
 npm run dev
 ```
 
-> Frontend runs at `http://localhost:5173`
+> 🌐 **Frontend URL**: `http://localhost:5173` (Open in browser)
 
 ---
 

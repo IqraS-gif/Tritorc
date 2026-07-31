@@ -10,6 +10,7 @@ import { ScanSummary } from "./components/ScanSummary.jsx";
 import { ResultsTable } from "./components/ResultsTable.jsx";
 import { ScanHistoryModal } from "./components/ScanHistory.jsx";
 import { ToastContainer } from "./components/Toast.jsx";
+import { FlipFadeText } from "./components/ui/flip-fade-text.jsx";
 import { useScanner } from "./hooks/useScanner.js";
 
 const TOTAL_KEYWORDS = 20;
@@ -143,7 +144,18 @@ export default function App() {
 
           {/* ── Hero text ──────────────────────────────────────────────── */}
           <div className="hero-section">
-            <h1 style={{ color: "red" }}>Scan Tender Documents</h1>
+            <h1>
+              <FlipFadeText
+                words={[
+                  "Scan Tender Documents",
+                  "Analyze Scope of Work",
+                  "Match Bolting Tenders",
+                  "Check Procurement Relevance",
+                ]}
+                duration={2800}
+                style={{ color: "var(--clr-primary)" }}
+              />
+            </h1>
             <p>
               Upload PDF or DOCX files and instantly discover which tenders mention
               Tritorc's industrial bolting products and services.
