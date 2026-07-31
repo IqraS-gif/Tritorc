@@ -10,8 +10,21 @@ A production-quality full-stack web application for scanning **PDF and DOCX tend
 - 🔍 **Fuzzy keyword matching** — handles plurals, variants (tensioning, tensioned, tensioner) via regex + Porter Stemmer
 - 📊 **Relevance scoring** — dynamically computed: `Yes` (3+ matches) / `Possible` (1-2) / `No` (0)
 - 📈 **Excel report** — styled, colour-coded `.xlsx` download with all results
-- 🌈 **Modern UI** — dark glassmorphism design, animated progress, toast notifications
+- 🎨 **Clean Red & White Light Theme** — high contrast, crisp borders, zero AI gradients, zero emojis
 - ⚡ **Fast & lightweight** — no AI, no embeddings, fully deterministic matching
+
+---
+
+## 📄 Included Sample Test Documents
+
+Three pre-generated test PDF files are included in the root directory to test each relevance score:
+
+1. **`sample_tender_relevant.pdf`** — Refinery Shutdown Maintenance SOW  
+   - *Result*: **11 matches** → Relevance: **Yes**
+2. **`sample_tender_borderline.pdf`** — General Mechanics Workshop Tool Procurement  
+   - *Result*: **2 matches** → Relevance: **Possible**
+3. **`sample_tender_not_relevant.pdf`** — Enterprise Cloud & IT Infrastructure Tender  
+   - *Result*: **0 matches** → Relevance: **No**
 
 ---
 
@@ -19,11 +32,14 @@ A production-quality full-stack web application for scanning **PDF and DOCX tend
 
 ```
 DocumentRetrivelTritoric/
-├── backend/                  Node.js + Express API
+├── sample_tender_relevant.pdf       ← Test PDF (Yes score)
+├── sample_tender_borderline.pdf     ← Test PDF (Possible score)
+├── sample_tender_not_relevant.pdf   ← Test PDF (No score)
+├── backend/                         Node.js + Express API
 │   ├── src/
-│   │   ├── app.js            Entry point
+│   │   ├── app.js                   Entry point
 │   │   ├── config/
-│   │   │   └── keywords.js   Keyword config with regex patterns ← edit here
+│   │   │   └── keywords.js          Keyword config with regex patterns ← edit here
 │   │   ├── controllers/
 │   │   │   └── scanController.js
 │   │   ├── middleware/
@@ -31,13 +47,15 @@ DocumentRetrivelTritoric/
 │   │   ├── routes/
 │   │   │   └── scanRoutes.js
 │   │   └── services/
-│   │       ├── extractorService.js   PDF/DOCX text extraction
-│   │       ├── matcherService.js     Keyword matching engine
-│   │       └── reportService.js      Excel generation
+│   │       ├── extractorService.js  PDF/DOCX text extraction
+│   │       ├── matcherService.js    Keyword matching engine
+│   │       └── reportService.js     Excel generation
+│   ├── scripts/
+│   │   └── generateSamples.js       PDFKit script to regenerate test PDFs
 │   ├── .env.example
 │   └── package.json
 │
-└── frontend/                 React + Vite
+└── frontend/                        React + Vite (Red & White Light Theme)
     ├── src/
     │   ├── App.jsx
     │   ├── main.jsx
@@ -125,14 +143,6 @@ Edit `backend/src/config/keywords.js` to:
 - Add regex patterns for new variants
 - Change relevance thresholds (the `computeRelevance` function)
 
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `5000` | Backend server port |
-| `FRONTEND_URL` | `http://localhost:5173` | Allowed CORS origin |
-| `NODE_ENV` | `development` | Environment mode |
-
 ---
 
 ## 🔬 Matching Algorithm
@@ -142,40 +152,6 @@ Edit `backend/src/config/keywords.js` to:
 3. **Variant coverage**: Alternation groups like `tension(ing|ed|er|ers|s)?`
 4. **Stemming fallback**: Porter Stemmer applied to single-word keywords for robustness
 5. **Deduplication**: Each keyword label counted at most once
-
----
-
-## 📸 Screenshots
-
-> _Place screenshots here after first run_
-
-- `screenshots/upload-screen.png`
-- `screenshots/results-view.png`
-- `screenshots/excel-report.png`
-
----
-
-## 📦 Dependencies
-
-### Backend
-| Package | Purpose |
-|---------|---------|
-| `express` | HTTP framework |
-| `multer` | Multipart file upload |
-| `pdf-parse` | PDF text extraction |
-| `mammoth` | DOCX text extraction |
-| `natural` | Porter Stemmer (fuzzy matching) |
-| `exceljs` | Excel report generation |
-| `cors` | CORS middleware |
-| `dotenv` | Environment variables |
-
-### Frontend
-| Package | Purpose |
-|---------|---------|
-| `react` + `react-dom` | UI framework |
-| `vite` + `@vitejs/plugin-react` | Build tool |
-| `axios` | HTTP client |
-| `react-dropzone` | Drag-and-drop upload |
 
 ---
 
