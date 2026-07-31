@@ -1,0 +1,54 @@
+AI_NOTES.txt — Prompts used during development of Tritorc Relevance Checker
+=============================================================================
+
+PROMPT 1 — Full-stack project scaffolding
+------------------------------------------
+"Build a production-quality full-stack MERN application called 'Tritorc Relevance Checker'.
+Tech Stack: React + Vite frontend, Node.js + Express backend, REST API communication.
+Requirements:
+1. Upload one or multiple PDF/DOCX files.
+2. Extract text from PDFs using pdf-parse and DOCX using mammoth.
+3. Scan documents against a keyword list stored in a separate config file (not hardcoded in logic).
+4. Matching must be case-insensitive and handle simple plural/variant forms.
+5. Compute relevance dynamically: 0 matches = No, 1-2 = Possible, 3+ = Yes.
+6. Display results with Document Name, Matched Keywords, Match Count, and Relevance.
+7. Generate and download an Excel (.xlsx) report.
+8. Build a clean, modern, fully responsive UI with drag-and-drop upload, loading states,
+   success/error toasts, progress indicator, scan summary, and download button.
+9. Use proper folder structure, reusable components, clean code, error handling, validation, and comments.
+10. Keep frontend and backend in separate folders.
+Include README.md, AI_NOTES.txt, and DEPLOY.md."
+
+
+PROMPT 2 — Fuzzy/stemmed keyword matching
+-------------------------------------------
+"Improve the keyword matching by adding basic fuzzy/stemmed matching as a bonus.
+Do NOT use AI or embeddings. Keep it lightweight and deterministic.
+Requirements:
+- Continue using case-insensitive matching.
+- Support singular/plural forms (e.g. 'torque wrench' ↔ 'torque wrenches').
+- Support simple word variants (e.g. 'tensioning', 'tensioned', 'tensioner').
+- Use regex and/or the 'natural' package (Porter Stemmer) where appropriate.
+- Avoid false positives by matching whole words/phrases only (word boundary anchors).
+- Keep the keyword list in a separate config file and allow each keyword to have
+  multiple regex/synonym patterns.
+- Return only unique matched keywords, accurate match count, and the computed relevance score.
+- Keep the implementation clean, modular, and easy to extend with new keywords."
+
+
+PROMPT 3 — UI design and UX polish
+-------------------------------------
+"Design a modern, premium dark-mode UI for the Tritorc Relevance Checker frontend.
+Requirements:
+- Use a dark glassmorphism aesthetic with deep navy/dark background, semi-transparent glass cards,
+  blurred backdrop, and subtle gradient overlays.
+- Primary accent colour: #6378ff (electric indigo). Secondary accent: #00d4aa (cyan-green).
+- Typography: Inter (body text), JetBrains Mono (code/numbers).
+- Animated components: smooth fadeIn on cards, spinning loader during upload, pulsing progress bar,
+  slide-in toast notifications, hover lift effects on buttons and stat cards.
+- Relevance badges: colour-coded (green = Yes, amber = Possible, red = No).
+- Keyword chips: indigo pill tags with '+N more' expand toggle.
+- Feature cards on empty state explaining matching capabilities.
+- Sticky header with live status indicator (pulsing dot).
+- Responsive layout that works on mobile (flex-wrap, horizontal scroll table).
+- No CSS framework (pure CSS custom properties / vanilla CSS)."
