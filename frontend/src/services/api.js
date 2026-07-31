@@ -36,7 +36,7 @@ export async function scanDocuments(files, onUploadProgress) {
 }
 
 /**
- * Download an Excel report for the given scan results.
+ * Download a standard 4-column Excel summary report.
  *
  * @param {ScanResult[]} results - Array of scan result objects
  * @returns {Promise<Blob>} Excel file as a Blob
@@ -44,6 +44,22 @@ export async function scanDocuments(files, onUploadProgress) {
 export async function downloadReport(results) {
   const response = await apiClient.post(
     "/report",
+    { results },
+    { responseType: "blob" }
+  );
+  return response.data;
+}
+
+/**
+ * Download a detailed 24-column Excel report (mirrors sample_tender_scan_report layout).
+ * Fields not present in the source document are shown as "Not Found".
+ *
+ * @param {ScanResult[]} results - Array of scan result objects
+ * @returns {Promise<Blob>} Excel file as a Blob
+ */
+export async function downloadDetailedReport(results) {
+  const response = await apiClient.post(
+    "/report/detailed",
     { results },
     { responseType: "blob" }
   );

@@ -142,15 +142,18 @@ const KEYWORDS = [
 
 /**
  * Compute the relevance label from match count.
- * Thresholds are defined here — change to adjust scoring globally.
+ * Thresholds:
+ *   0 matches        → "No Relevance"
+ *   1-2 matches      → "Possible"
+ *   3+ matches       → "High Relevance"
  *
  * @param {number} count - Number of unique matched keywords
- * @returns {"Yes"|"Possible"|"No"}
+ * @returns {"High Relevance"|"Possible"|"No Relevance"}
  */
 function computeRelevance(count) {
-  if (count >= 3) return "Yes";
+  if (count >= 3) return "High Relevance";
   if (count >= 1) return "Possible";
-  return "No";
+  return "No Relevance";
 }
 
 module.exports = { KEYWORDS, computeRelevance };

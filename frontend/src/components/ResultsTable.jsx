@@ -10,10 +10,10 @@ import React, { useState } from "react";
 /** Relevance badge component */
 function RelevanceBadge({ relevance }) {
   const map = {
-    Yes:      { cls: "badge-yes",      dot: "#16a34a", label: "Yes"      },
-    Possible: { cls: "badge-possible", dot: "#d97706", label: "Possible" },
-    No:       { cls: "badge-no",       dot: "#dc2626", label: "No"       },
-    Error:    { cls: "badge-error",    dot: "#dc2626", label: "Error"    },
+    "High Relevance": { cls: "badge-yes",      dot: "#16a34a", label: "High Relevance" },
+    Possible:         { cls: "badge-possible", dot: "#d97706", label: "Possible"       },
+    "No Relevance":   { cls: "badge-no",       dot: "#dc2626", label: "No Relevance"   },
+    Error:            { cls: "badge-error",    dot: "#dc2626", label: "Error"          },
   };
   const cfg = map[relevance] || map.Error;
 
@@ -154,9 +154,9 @@ export function ResultsTable({ results }) {
           {/* Column widths */}
           <colgroup>
             <col style={{ width: "30%" }} />
-            <col style={{ width: "42%" }} />
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "16%" }} />
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "20%" }} />
           </colgroup>
 
           <thead>

@@ -104,7 +104,7 @@ export function ScanSummary({ summary }) {
           description="documents processed"
         />
         <StatCard
-          label="Relevant"
+          label="High Relevance"
           value={summary.relevant}
           colour="#15803d"
           bgColour="#f0fdf4"
@@ -117,15 +117,15 @@ export function ScanSummary({ summary }) {
           colour="#b45309"
           bgColour="#fffbeb"
           borderColour="#fde68a"
-          description="partial matches"
+          description="1-2 matches"
         />
         <StatCard
-          label="Not Relevant"
+          label="No Relevance"
           value={summary.notRelevant}
           colour="#b91c1c"
           bgColour="#fef2f2"
           borderColour="#fca5a5"
-          description="no matches found"
+          description="0 matches found"
         />
         {summary.errors > 0 && (
           <StatCard

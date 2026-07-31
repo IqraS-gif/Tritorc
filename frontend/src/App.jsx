@@ -16,8 +16,9 @@ const TOTAL_KEYWORDS = 20;
 export default function App() {
   const {
     files, results, status, uploadProgress, toasts, summary,
-    addFiles, removeFile, clearAll, scan, downloadReport, removeToast,
+    addFiles, removeFile, clearAll, scan, downloadReport, downloadDetailedReport, removeToast,
   } = useScanner();
+
 
   const isActive = status === "uploading" || status === "scanning";
   const isDone   = status === "done";
@@ -216,23 +217,43 @@ export default function App() {
                 )}
               </button>
 
-              {/* Download button — only shown when results exist */}
+              {/* Download buttons — only shown when results exist */}
               {isDone && results.length > 0 && (
-                <button
-                  id="download-btn"
-                  className="btn btn-accent"
-                  onClick={downloadReport}
-                  aria-label="Download Excel report"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
-                  Download Excel Report
-                </button>
+                <>
+                  <button
+                    id="download-btn"
+                    className="btn btn-accent"
+                    onClick={downloadReport}
+                    aria-label="Download standard Excel report"
+                    title="4 columns: Document, Keywords, Count, Relevance"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Report
+                  </button>
+                  <button
+                    id="download-detailed-btn"
+                    className="btn btn-ghost"
+                    onClick={downloadDetailedReport}
+                    aria-label="Download detailed 24-column Excel report"
+                    title="24 columns including Tender ID, Authority, Dates, Amount, Scope of Work, etc."
+                    style={{ borderColor: "var(--clr-primary)", color: "var(--clr-primary)" }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Detailed Report
+                  </button>
+                </>
               )}
+
 
               {/* Clear button */}
               {(files.length > 0 || isDone) && (
@@ -268,19 +289,22 @@ export default function App() {
               <div className="glass-card" style={{ padding: "var(--space-lg)" }}>
                 <ResultsTable results={results} />
 
-                {/* Download CTA at bottom */}
+                {/* Download CTAs at bottom */}
                 <div style={{
                   display:       "flex",
+                  gap:           "12px",
                   justifyContent: "flex-end",
                   marginTop:     "20px",
                   paddingTop:    "16px",
                   borderTop:     "1px solid var(--clr-border)",
+                  flexWrap:      "wrap",
                 }}>
                   <button
                     id="download-btn-bottom"
                     className="btn btn-accent"
                     onClick={downloadReport}
-                    aria-label="Download Excel report from bottom"
+                    aria-label="Download standard Excel report from bottom"
+                    title="4 columns: Document, Keywords, Count, Relevance"
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -288,9 +312,26 @@ export default function App() {
                       <polyline points="7 10 12 15 17 10"/>
                       <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Export to Excel (.xlsx)
+                    Export Summary (.xlsx)
+                  </button>
+                  <button
+                    id="download-detailed-btn-bottom"
+                    className="btn btn-ghost"
+                    onClick={downloadDetailedReport}
+                    aria-label="Download detailed 24-column Excel report from bottom"
+                    title="24 columns: full tender metadata + keywords + relevance"
+                    style={{ borderColor: "var(--clr-primary)", color: "var(--clr-primary)" }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export Detailed (.xlsx)
                   </button>
                 </div>
+
               </div>
             </div>
           )}

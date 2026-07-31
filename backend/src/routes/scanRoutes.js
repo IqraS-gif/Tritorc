@@ -5,7 +5,8 @@
 const express    = require("express");
 const router     = express.Router();
 const { upload } = require("../middleware/uploadMiddleware");
-const { scanDocuments, downloadReport } = require("../controllers/scanController");
+const { scanDocuments, downloadReport, downloadDetailedReport } = require("../controllers/scanController");
+
 
 /**
  * POST /api/scan
@@ -18,5 +19,12 @@ router.post("/scan", upload.array("files", 20), scanDocuments);
  * Accepts { results: [...] } JSON → streams .xlsx file
  */
 router.post("/report", express.json({ limit: "5mb" }), downloadReport);
+
+/**
+ * POST /api/report/detailed
+ * Accepts { results: [...] } JSON → streams 24-column .xlsx file
+ */
+router.post("/report/detailed", express.json({ limit: "5mb" }), downloadDetailedReport);
+
 
 module.exports = router;

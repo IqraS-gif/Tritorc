@@ -10,7 +10,8 @@
  */
 
 import { useState, useCallback } from "react";
-import { scanDocuments as apiScan, downloadReport as apiDownload } from "../services/api";
+import { scanDocuments as apiScan, downloadReport as apiDownload, downloadDetailedReport as apiDownloadDetailed } from "../services/api";
+
 
 let toastId = 0;
 
@@ -121,7 +122,7 @@ export function useScanner() {
     }
   }, [files, addToast]);
 
-  // ── Download ───────────────────────────────────────────────────────────────
+  // ── Download (standard summary) ───────────────────────────────────────────
   const downloadReport = useCallback(async () => {
     if (results.length === 0) {
       addToast("warning", "No results to export. Please scan documents first.");
@@ -129,7 +130,7 @@ export function useScanner() {
     }
 
     try {
-      addToast("info", "Generating Excel report…", 3000);
+      addToast("info", "Generating Excel report...", 3000);
       const blob = await apiDownload(results);
 
       const url  = URL.createObjectURL(blob);
@@ -148,17 +149,46 @@ export function useScanner() {
     }
   }, [results, addToast]);
 
+  // ── Download (detailed 24-column) ─────────────────────────────────────────
+  const downloadDetailedReport = useCallback(async () => {
+    if (results.length === 0) {
+      addToast("warning", "No results to export. Please scan documents first.");
+      return;
+    }
+
+    try {
+      addToast("info", "Generating detailed Excel report...", 3000);
+      const blob = await apiDownloadDetailed(results);
+
+      const url  = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const ts   = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      link.href     = url;
+      link.download  = `Tritorc_Detailed_Report_${ts}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      addToast("success", "Detailed report downloaded!");
+    } catch (err) {
+      addToast("error", "Failed to download detailed report. Please try again.", 6000);
+    }
+  }, [results, addToast]);
+
+
   // ── Derived stats ──────────────────────────────────────────────────────────
   const summary = {
-    total:    results.length,
-    relevant: results.filter((r) => r.relevance === "Yes").length,
-    possible: results.filter((r) => r.relevance === "Possible").length,
-    notRelevant: results.filter((r) => r.relevance === "No").length,
-    errors:   results.filter((r) => r.error).length,
+    total:       results.length,
+    relevant:    results.filter((r) => r.relevance === "High Relevance").length,
+    possible:    results.filter((r) => r.relevance === "Possible").length,
+    notRelevant: results.filter((r) => r.relevance === "No Relevance").length,
+    errors:      results.filter((r) => r.error).length,
   };
 
   return {
     files, results, status, uploadProgress, toasts, summary,
-    addFiles, removeFile, clearAll, scan, downloadReport, removeToast,
+    addFiles, removeFile, clearAll, scan, downloadReport, downloadDetailedReport, removeToast,
   };
 }
+

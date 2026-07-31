@@ -12,7 +12,10 @@
 
 const { extractText }        = require("../services/extractorService");
 const { scanText }           = require("../services/matcherService");
-const { generateExcelReport } = require("../services/reportService");
+const { extractMetadata }    = require("../services/metadataExtractorService");
+const { generateExcelReport, generateDetailedExcelReport } = require("../services/reportService");
+
+
 
 /**
  * POST /api/scan
@@ -41,13 +44,19 @@ async function scanDocuments(req, res) {
         // 2. Scan the extracted text against the keyword config
         const { matchedKeywords, matchCount, relevance } = scanText(text);
 
+        // 3. Extract structured metadata fields from the document text
+        const metadata = extractMetadata(text, file.originalname);
+
         results.push({
           fileName: file.originalname,
           matchedKeywords,
           matchCount,
           relevance,
           error: null,
+          // Spread all 20 metadata fields into the result
+          ...metadata,
         });
+
       } catch (fileErr) {
         // Don't abort the entire batch — record per-file errors and continue
         results.push({
@@ -107,4 +116,42 @@ async function downloadReport(req, res) {
   }
 }
 
-module.exports = { scanDocuments, downloadReport };
+/**
+ * POST /api/report/detailed
+ * Generate and stream a detailed 24-column Excel report.
+ */
+async function downloadDetailedReport(req, res) {
+  try {
+    const { results } = req.body;
+
+    if (!Array.isArray(results) || results.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No scan results provided. Please scan documents first.",
+      });
+    }
+
+    const excelBuffer = await generateDetailedExcelReport(results);
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const filename = `Tritorc_Detailed_Report_${timestamp}.xlsx`;
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Length", excelBuffer.length);
+
+    return res.status(200).send(excelBuffer);
+  } catch (err) {
+    console.error("[downloadDetailedReport] Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate detailed Excel report.",
+    });
+  }
+}
+
+module.exports = { scanDocuments, downloadReport, downloadDetailedReport };
+
