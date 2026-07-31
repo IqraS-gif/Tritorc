@@ -69,20 +69,15 @@ export function DropZone({ onFilesAdded, files, onRemove, disabled }) {
       <div
         {...getRootProps()}
         id="drop-zone"
+        className="drop-zone-area"
         role="button"
         aria-label="Drag and drop PDF or DOCX files here, or click to browse"
         tabIndex={disabled ? -1 : 0}
         style={{
-          border:       `2px dashed ${borderColour}`,
-          borderRadius: "var(--radius-lg)",
-          padding:      "40px 24px",
-          textAlign:    "center",
-          cursor:       disabled ? "not-allowed" : "pointer",
-          background:   bgColour,
-          transition:   "all 0.2s ease",
-          opacity:      disabled ? 0.6 : 1,
-          outline:      "none",
-          position:     "relative",
+          border:     `2px dashed ${borderColour}`,
+          cursor:     disabled ? "not-allowed" : "pointer",
+          background: bgColour,
+          opacity:    disabled ? 0.6 : 1,
         }}
         onFocus={(e) => (e.currentTarget.style.borderColor = "var(--clr-primary)")}
         onBlur={(e)  => (e.currentTarget.style.borderColor = borderColour)}

@@ -65,3 +65,28 @@ export async function downloadDetailedReport(results) {
   );
   return response.data;
 }
+
+/**
+ * Fetch scan history from MongoDB.
+ */
+export async function getHistory() {
+  const response = await apiClient.get("/history");
+  return response.data;
+}
+
+/**
+ * Clear all scan history in MongoDB.
+ */
+export async function clearHistory() {
+  const response = await apiClient.delete("/history");
+  return response.data;
+}
+
+/**
+ * Delete a specific scan batch from MongoDB history.
+ */
+export async function deleteHistoryBatch(id) {
+  const response = await apiClient.delete(`/history/${id}`);
+  return response.data;
+}
+

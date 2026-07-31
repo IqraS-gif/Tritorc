@@ -133,15 +133,9 @@ export function ResultsTable({ results }) {
         </span>
       </div>
 
-      {/* Table wrapper for horizontal scroll on small screens */}
-      <div
-        style={{
-          overflowX:    "auto",
-          borderRadius: "var(--radius-md)",
-          border:       "1px solid var(--clr-border)",
-          background:   "#ffffff",
-        }}
-      >
+      {/* Table wrapper — horizontal scroll on small screens */}
+      <div className="results-table-wrapper">
+
         <table
           role="table"
           aria-label="Document scan results"
@@ -164,6 +158,7 @@ export function ResultsTable({ results }) {
               {["Document Name", "Matched Keywords", "Matches", "Relevance"].map((header) => (
                 <th
                   key={header}
+                  className={header === "Matched Keywords" ? "col-keywords" : undefined}
                   style={{
                     padding:       "12px 16px",
                     textAlign:     header === "Matches" ? "center" : "left",
@@ -180,6 +175,7 @@ export function ResultsTable({ results }) {
               ))}
             </tr>
           </thead>
+
 
           <tbody>
             {results.map((result, idx) => (
@@ -230,13 +226,12 @@ export function ResultsTable({ results }) {
 
                 {/* Matched Keywords */}
                 <td
-                  style={{
-                    padding:      "14px 16px",
-                    verticalAlign: "top",
-                  }}
+                  className="col-keywords"
+                  style={{ padding: "14px 16px", verticalAlign: "top" }}
                 >
                   <KeywordsCell keywords={result.matchedKeywords} error={result.error} />
                 </td>
+
 
                 {/* Match Count */}
                 <td

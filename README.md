@@ -1,75 +1,91 @@
 # Tritorc Relevance Checker
 
-A production-quality full-stack web application for scanning **PDF and DOCX tender documents** against Tritorc's industrial bolting keyword list to determine procurement relevance.
+A production-quality, responsive full-stack web application for scanning **PDF and DOCX tender documents** against Tritorc's industrial bolting keyword list to determine procurement relevance.
 
 ---
 
 ## ✨ Features
 
-- 📂 **Drag-and-drop upload** — supports multiple PDF/DOCX files at once
-- 🔍 **Fuzzy keyword matching** — handles plurals, variants (tensioning, tensioned, tensioner) via regex + Porter Stemmer
-- 📊 **Relevance scoring** — dynamically computed: `Yes` (3+ matches) / `Possible` (1-2) / `No` (0)
-- 📈 **Excel report** — styled, colour-coded `.xlsx` download with all results
-- 🎨 **Clean Red & White Light Theme** — high contrast, crisp borders, zero AI gradients, zero emojis
-- ⚡ **Fast & lightweight** — no AI, no embeddings, fully deterministic matching
+- 📂 **Drag-and-drop multi-file upload** — accepts multiple `.pdf` and `.docx` files at once
+- 🔍 **Fuzzy keyword matching engine** — case-insensitive matching with regex + Porter Stemmer handling plurals & word variants (e.g. `torque wrench` ↔ `torque wrenches`, `tensioning` ↔ `tensioner`)
+- 📊 **Dynamic relevance scoring** — 
+  - `0 matches` → **No Relevance**
+  - `1–2 matches` → **Possible**
+  - `3+ matches` → **High Relevance**
+- 📈 **Two Excel report download options**:
+  1. **Summary Report** — 4 columns (`Document Name`, `Matched Keywords`, `Match Count`, `Relevance`)
+  2. **Detailed Report** — 24 columns matching GeM tender metadata standards (`Tender ID`, `Authority`, `Location`, `Dates`, `Tender Amount`, `EMD`, `Scope of Work`, `Technical/Financial Qualification`, etc.)
+- 📱 **Mobile responsive UI** — mobile-first CSS breakpoints supporting desktop, tablet, and smartphone screens
+- 🎨 **Red & White Light Theme** — clean high contrast design, SVG icons, zero emojis, zero AI gradients
+- ⚡ **Fast & deterministic** — lightweight in-memory parsing, no external AI/LLM API dependency needed
 
 ---
 
-## 📄 Included GeM Tender Test Documents
+## 📄 Included Test Tender Documents
 
-Two authentic 6-page Government eMarketplace (GeM) tender documents are generated in the root directory for testing:
+The repository includes pre-built sample GeM tender documents for testing all three relevance tiers:
 
-1. **`GeM-Bidding-High-Relevance.pdf`** (6 Pages / 9,060 chars)  
+1. **`GeM-Bidding-High-Relevance.pdf`** (6 Pages)  
    - *Scope*: Refinery Shutdown Maintenance & Controlled Bolting Services (IOCL Gujarat Refinery)  
-   - *Result*: **13 matched keywords** → Relevance: **Yes**
+   - *Result*: **13 matched keywords** → **High Relevance**
 
-2. **`GeM-Bidding-Borderline-Relevance.pdf`** (6 Pages / 8,354 chars)  
+2. **`GeM-Bidding-Borderline-Relevance.pdf`** (6 Pages)  
    - *Scope*: General Hardware & Workshop Consumables Procurement (BHEL Haridwar)  
-   - *Result*: **2 matched keywords** → Relevance: **Possible**
+   - *Result*: **2 matched keywords** → **Possible**
+
+3. **`GeM-Bidding-9563430.pdf`** (5 Pages)  
+   - *Scope*: Office Stationary & Printing Supply Tender  
+   - *Result*: **0 matched keywords** → **No Relevance**
+
+4. **`GeM_Bid_9852104_Formatted.docx`**  
+   - *Result*: **14 matched keywords** → **High Relevance** (with full 24-column metadata extraction)
 
 ---
 
 ## 📁 Project Structure
 
 ```
-DocumentRetrivelTritoric/
-├── GeM-Bidding-High-Relevance.pdf       ← 6-Page GeM Test PDF (Yes score)
-├── GeM-Bidding-Borderline-Relevance.pdf ← 6-Page GeM Test PDF (Possible score)
+Tritorc-Relevance-Checker/
+├── GeM-Bidding-High-Relevance.pdf       ← High Relevance test PDF
+├── GeM-Bidding-Borderline-Relevance.pdf ← Borderline test PDF
+├── GeM-Bidding-9563430.pdf              ← No Relevance test PDF
+├── GeM_Bid_9852104_Formatted.docx       ← Test DOCX file
 ├── backend/                              Node.js + Express API
 │   ├── src/
-│   │   ├── app.js                        Entry point
+│   │   ├── app.js                        Express server setup & CORS
 │   │   ├── config/
-│   │   │   └── keywords.js               Keyword config with regex patterns ← edit here
+│   │   │   └── keywords.js               Keyword config file (20 default keywords)
 │   │   ├── controllers/
-│   │   │   └── scanController.js
+│   │   │   └── scanController.js         Scan & report endpoint logic
 │   │   ├── middleware/
-│   │   │   └── uploadMiddleware.js
+│   │   │   └── uploadMiddleware.js       Multer memory storage config
 │   │   ├── routes/
-│   │   │   └── scanRoutes.js
+│   │   │   └── scanRoutes.js             API router (/api/scan, /api/report, /api/report/detailed)
 │   │   └── services/
-│   │       ├── extractorService.js       PDF/DOCX text extraction
-│   │       ├── matcherService.js         Keyword matching engine
-│   │       └── reportService.js          Excel generation
+│   │       ├── extractorService.js       PDF (pdf-parse) & DOCX (mammoth) text extraction
+│   │       ├── matcherService.js         Regex + Porter Stemmer matching engine
+│   │       ├── metadataExtractorService.js 24-column metadata extraction engine
+│   │       └── reportService.js          ExcelJS report generators (Summary & Detailed)
 │   ├── scripts/
-│   │   └── generateGeMSamples.js         Script to regenerate 6-page GeM PDFs
+│   │   └── generateGeMSamples.js         Script to generate 6-page test PDFs
 │   ├── .env.example
 │   └── package.json
 │
 └── frontend/                             React + Vite (Red & White Light Theme)
     ├── src/
-    │   ├── App.jsx
+    │   ├── App.jsx                       Main layout & state integration
     │   ├── main.jsx
-    │   ├── index.css
+    │   ├── index.css                     Design system & mobile responsive CSS
     │   ├── components/
-    │   │   ├── DropZone.jsx
-    │   │   ├── ProgressBar.jsx
-    │   │   ├── ResultsTable.jsx
-    │   │   ├── ScanSummary.jsx
-    │   │   └── Toast.jsx
+    │   │   ├── DropZone.jsx              Drag-and-drop file upload component
+    │   │   ├── ProgressBar.jsx           Animated upload/scan progress indicator
+    │   │   ├── ResultsTable.jsx          Interactive results view
+    │   │   ├── ScanSummary.jsx           Visual stat summary cards
+    │   │   └── Toast.jsx                 Toast notifications
     │   ├── hooks/
-    │   │   └── useScanner.js
+    │   │   └── useScanner.js             Scanner custom hook & UI state management
     │   └── services/
-    │       └── api.js
+    │       └── api.js                    Axios API client
     ├── index.html
     ├── vite.config.js
     └── package.json
@@ -77,7 +93,7 @@ DocumentRetrivelTritoric/
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Local Setup)
 
 ### Prerequisites
 
@@ -86,7 +102,7 @@ DocumentRetrivelTritoric/
 
 ---
 
-### 1. Install & Run the Backend
+### 1. Backend Setup
 
 ```bash
 cd backend
@@ -97,7 +113,7 @@ copy .env.example .env
 # Install dependencies
 npm install
 
-# Start dev server (with nodemon hot-reload)
+# Start dev server
 npm run dev
 ```
 
@@ -106,9 +122,9 @@ npm run dev
 
 ---
 
-### 2. Install & Run the Frontend
+### 2. Frontend Setup
 
-Open a **new terminal**:
+In a new terminal window:
 
 ```bash
 cd frontend
@@ -129,29 +145,55 @@ npm run dev
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET`  | `/health` | Server health check |
-| `POST` | `/api/scan` | Upload PDF/DOCX files → JSON results |
-| `POST` | `/api/report` | Send results → download `.xlsx` report |
+| `POST` | `/api/scan` | Upload PDF/DOCX files → JSON scan results |
+| `POST` | `/api/report` | Download 4-column summary Excel report |
+| `POST` | `/api/report/detailed` | Download 24-column detailed Excel report |
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Default Keyword List (20 Keywords)
 
-### Keywords
+Defined in `backend/src/config/keywords.js`:
 
-Edit `backend/src/config/keywords.js` to:
-- Add new keywords
-- Add regex patterns for new variants
-- Change relevance thresholds (the `computeRelevance` function)
+1. Hydraulic torque wrench
+2. Bolt tensioner
+3. Hydraulic bolt tensioning
+4. Controlled bolting
+5. Flange management
+6. Flange joint integrity
+7. Torque wrench
+8. Stud bolt tensioning
+9. Nut splitter
+10. Torque multiplier
+11. Bolting tools
+12. Flange bolt tightening
+13. Turnaround services
+14. Shutdown maintenance
+15. Plant shutdown
+16. Bolted joint
+17. Pre-tensioning
+18. Gasket and flange management
+19. Torque calibration
+20. Mechanical bolting
 
 ---
 
-## 🔬 Matching Algorithm
+## 🔬 Keyword Matching Logic
 
-1. **Text normalisation**: Lowercase + whitespace collapse
-2. **Regex patterns**: Each keyword has pre-compiled patterns with `\b` word-boundary anchors
-3. **Variant coverage**: Alternation groups like `tension(ing|ed|er|ers|s)?`
-4. **Stemming fallback**: Porter Stemmer applied to single-word keywords for robustness
-5. **Deduplication**: Each keyword label counted at most once
+1. **Text Normalization**: Converts text to lowercase and collapses whitespace.
+2. **Regex Anchoring**: Uses word boundary anchors (`\b`) to eliminate false positives.
+3. **Plural & Variant Coverage**: Matches variations like `tensioner`, `tensioning`, `tensioned`, `wrenches`, etc.
+4. **Porter Stemmer**: Applies stemming to single-word targets for maximum recall.
+5. **Deduplication**: Ensures each keyword label is counted once per document.
+
+---
+
+## 📄 Submission Files
+
+- `README.md` — Complete project overview and setup guide
+- `AI_NOTES.txt` — Prompts used during development and usage breakdown
+- `DEPLOY.md` — Comprehensive deployment instructions (Vercel + Railway / Render)
+- `keywords.csv` — CSV copy of keyword list
 
 ---
 

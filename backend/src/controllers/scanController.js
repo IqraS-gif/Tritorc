@@ -14,6 +14,9 @@ const { extractText }        = require("../services/extractorService");
 const { scanText }           = require("../services/matcherService");
 const { extractMetadata }    = require("../services/metadataExtractorService");
 const { generateExcelReport, generateDetailedExcelReport } = require("../services/reportService");
+const ScanHistory            = require("../models/ScanHistory");
+const { getDBStatus }        = require("../db");
+
 
 
 
@@ -69,7 +72,30 @@ async function scanDocuments(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, results });
+        // Save to MongoDB if DB is connected
+        const { connected } = getDBStatus();
+        if (connected) {
+          try {
+            const highRelevanceCount = results.filter((r) => r.relevance === "High Relevance").length;
+            const possibleCount      = results.filter((r) => r.relevance === "Possible").length;
+            const noRelevanceCount   = results.filter((r) => r.relevance === "No Relevance").length;
+            const errorCount         = results.filter((r) => r.relevance === "Error").length;
+
+            await ScanHistory.create({
+              totalFiles: results.length,
+              highRelevanceCount,
+              possibleCount,
+              noRelevanceCount,
+              errorCount,
+              results,
+            });
+          } catch (dbErr) {
+            console.warn("[MongoDB] Non-fatal error saving scan history batch:", dbErr.message);
+          }
+        }
+
+        return res.status(200).json({ success: true, results });
+
   } catch (err) {
     console.error("[scanDocuments] Unexpected error:", err);
     return res.status(500).json({

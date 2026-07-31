@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
 /* =============================================================================
    index.css — Global styles for Tritorc Relevance Checker
    Theme: Red & White Light Theme (High Contrast, Clean, No Gradients, No Emojis)
-   Font: Inter (body), JetBrains Mono (monospace/code)
+   Font: Inter (body), JetBrains Mono (monospace/code), Playfair Display (headings)
    ============================================================================= */
+
 
 /* ── CSS Custom Properties (Design Tokens) ─────────────────────────────────── */
 :root {
@@ -52,6 +55,8 @@
   /* Typography */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-serif: "Playfair Display", Georgia, serif;
+
 
   /* Transitions */
   --transition-fast:   0.15s ease;
@@ -317,12 +322,278 @@ a:hover { color: var(--clr-primary-hover); }
   to   { opacity: 0; transform: translateX(120%); }
 }
 
-/* ── Responsive helpers ─────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .container { padding: 0 var(--space-md); }
-  h1 { font-size: 1.6rem !important; }
+/* =============================================================================
+   RESPONSIVE SYSTEM — Mobile-first breakpoints
+   Breakpoints: sm=480, md=640, lg=768
+   ============================================================================= */
+
+/* ── App Header ─────────────────────────────────────────────────────────────── */
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
 }
 
-@media (max-width: 480px) {
-  .container { padding: 0 var(--space-sm); }
+.app-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
+
+.app-logo-text h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--clr-text-primary);
+  white-space: nowrap;
+}
+
+.app-logo-text p {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+
+.app-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Hero Section ───────────────────────────────────────────────────────────── */
+.hero-section {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  animation: fadeIn 0.4s ease;
+  padding: 0 var(--space-sm);
+}
+
+.hero-section h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--clr-text-primary);
+}
+
+
+.hero-section p {
+  color: var(--clr-text-secondary);
+  max-width: 560px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+}
+
+/* ── Upload Card ────────────────────────────────────────────────────────────── */
+.upload-card {
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+/* ── Action Buttons Row ─────────────────────────────────────────────────────── */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* ── Download Buttons Row ───────────────────────────────────────────────────── */
+.download-buttons-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--clr-border);
+}
+
+/* ── Feature Cards Row (Neo-Brutalist Red & White Theme) ───────────────────── */
+.feature-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 32px;
+  animation: fadeIn 0.4s ease;
+}
+
+.feature-card {
+  flex: 1 1 200px;
+  max-width: 250px;
+  background: #ffffff;
+  border: 2.5px solid #0f172a;
+  border-radius: 8px;
+  box-shadow: 4px 4px 0px #dc2626;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feature-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #dc2626;
+}
+
+.feature-card-header {
+  background: #ffffff;
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #0f172a;
+  border-bottom: 2.5px solid #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: -0.01em;
+}
+
+.feature-card-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.feature-card-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #0f172a;
+}
+
+.feature-card-dots .dot-red {
+  background: #dc2626;
+}
+
+.feature-card-dots .dot-black {
+  background: #0f172a;
+}
+
+.feature-card-body {
+  padding: 14px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #334155;
+  background: #fef2f2;
+}
+
+/* ── Results Table — mobile card mode ──────────────────────────────────────── */
+.results-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--clr-border);
+  background: #ffffff;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Summary Stat Cards ─────────────────────────────────────────────────────── */
+.stat-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-card {
+  flex: 1 1 130px;
+  min-width: 120px;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  cursor: default;
+}
+
+/* ── Drop Zone ──────────────────────────────────────────────────────────────── */
+.drop-zone-area {
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+  outline: none;
+  position: relative;
+}
+
+/* =============================================================================
+   TABLET  ≤ 768px
+   ============================================================================= */
+@media (max-width: 768px) {
+  .container { padding: 0 var(--space-md); }
+
+  .upload-card { padding: var(--space-lg); }
+
+  .hero-section { margin-bottom: var(--space-lg); }
+
+  .feature-card { flex: 1 1 140px; }
+
+  .stat-card { padding: 14px; }
+
+  .app-logo-text p { display: none; } /* hide subtitle in header on tablet */
+}
+
+/* =============================================================================
+   MOBILE  ≤ 640px
+   ============================================================================= */
+@media (max-width: 640px) {
+  .container { padding: 0 var(--space-md); }
+
+  /* Header — shrink status pill text on very small screens */
+  .app-header-inner { height: 56px; }
+  .app-logo-text h1 { font-size: 0.95rem; }
+
+  /* Hero */
+  .hero-section h1 { font-size: 1.45rem; }
+  .hero-section p  { font-size: 0.85rem; }
+
+  /* Upload card — tighter padding */
+  .upload-card { padding: var(--space-md); }
+
+  /* Drop zone — less padding on mobile */
+  .drop-zone-area { padding: 28px 16px; }
+
+  /* Action buttons — stretch full width */
+  .action-buttons { flex-direction: column; }
+  .action-buttons .btn { width: 100%; justify-content: center; }
+
+  /* Download buttons — stack vertically */
+  .download-buttons-bar { flex-direction: column; align-items: stretch; }
+  .download-buttons-bar .btn { width: 100%; justify-content: center; }
+
+  /* Feature cards — 2-up grid */
+  .feature-card { flex: 1 1 calc(50% - 8px); max-width: none; }
+
+  /* Stat cards — 2 columns */
+  .stat-card { flex: 1 1 calc(50% - 6px); min-width: 0; }
+
+  /* Table — switch to card layout on mobile */
+  .results-table-wrapper table { table-layout: auto; }
+  .results-table-wrapper colgroup { display: none; }
+
+  /* Shrink table cells so they fit */
+  .results-table-wrapper th,
+  .results-table-wrapper td {
+    padding: 10px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* Hide "Matched Keywords" column on very small screens — show count + relevance only */
+  .col-keywords { display: none; }
+
+  /* Footer */
+  footer p { font-size: 0.72rem; }
+}
+
+/* =============================================================================
+   EXTRA SMALL  ≤ 400px
+   ============================================================================= */
+@media (max-width: 400px) {
+  .container { padding: 0 12px; }
+  .app-logo-text h1 { font-size: 0.88rem; }
+  .hero-section h1  { font-size: 1.2rem; }
+  .stat-card { flex: 1 1 100%; } /* full width on very small screens */
+}
+

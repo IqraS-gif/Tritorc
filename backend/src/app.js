@@ -11,9 +11,12 @@
 
 require("dotenv").config();
 
-const express    = require("express");
-const cors       = require("cors");
-const scanRoutes = require("./routes/scanRoutes");
+const express       = require("express");
+const cors          = require("cors");
+const scanRoutes    = require("./routes/scanRoutes");
+const historyRoutes = require("./routes/historyRoutes");
+const { connectDB } = require("./db");
+
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -34,7 +37,8 @@ app.use(
         callback(new Error(`CORS policy: Origin ${origin} is not allowed.`));
       }
     },
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -55,6 +59,8 @@ app.get("/health", (_req, res) => {
 
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use("/api", scanRoutes);
+app.use("/api", historyRoutes);
+
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -87,11 +93,15 @@ app.use((err, _req, res, _next) => {
 });
 
 // ── Start server ──────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n🚀 Tritorc Relevance Checker API running on port ${PORT}`);
   console.log(`   Health: http://localhost:${PORT}/health`);
   console.log(`   Scan:   POST http://localhost:${PORT}/api/scan`);
   console.log(`   Report: POST http://localhost:${PORT}/api/report\n`);
+
+  // Connect to MongoDB
+  await connectDB();
 });
+
 
 module.exports = app; // Exported for testing

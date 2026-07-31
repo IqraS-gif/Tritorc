@@ -10,7 +10,8 @@
  */
 
 import { useState, useCallback } from "react";
-import { scanDocuments as apiScan, downloadReport as apiDownload, downloadDetailedReport as apiDownloadDetailed } from "../services/api";
+import { scanDocuments as apiScan, downloadReport as apiDownload, downloadDetailedReport as apiDownloadDetailed, getHistory, clearHistory, deleteHistoryBatch } from "../services/api";
+
 
 
 let toastId = 0;
@@ -21,6 +22,11 @@ export function useScanner() {
   const [status, setStatus]         = useState("idle"); // idle | uploading | scanning | done | error
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toasts, setToasts]         = useState([]);
+
+  // MongoDB History state
+  const [history, setHistory]         = useState([]);
+  const [dbConnected, setDbConnected] = useState(false);
+
 
   // ── Toast helpers ──────────────────────────────────────────────────────────
   const addToast = useCallback((type, message, duration = 5000) => {
@@ -114,6 +120,8 @@ export function useScanner() {
       } else {
         addToast("success", `Successfully scanned ${files.length} document(s).`);
       }
+      // Refresh history if MongoDB is enabled
+      fetchHistory();
     } catch (err) {
       setStatus("error");
       const msg =
@@ -121,6 +129,46 @@ export function useScanner() {
       addToast("error", msg, 8000);
     }
   }, [files, addToast]);
+
+  // ── History management ───────────────────────────────────────────────────
+  const fetchHistory = useCallback(async () => {
+    try {
+      const data = await getHistory();
+      if (data.success) {
+        setHistory(data.history || []);
+        setDbConnected(!!data.dbConnected);
+      }
+    } catch (err) {
+      setDbConnected(false);
+    }
+  }, []);
+
+  const handleClearHistory = useCallback(async () => {
+    try {
+      await clearHistory();
+      setHistory([]);
+      addToast("info", "Scan history cleared.");
+    } catch (err) {
+      addToast("error", "Failed to clear history.");
+    }
+  }, [addToast]);
+
+  const handleDeleteBatch = useCallback(async (id) => {
+    try {
+      await deleteHistoryBatch(id);
+      setHistory((prev) => prev.filter((b) => b._id !== id));
+      addToast("info", "Batch removed from history.");
+    } catch (err) {
+      addToast("error", "Failed to delete batch.");
+    }
+  }, [addToast]);
+
+  const loadBatch = useCallback((batchResults) => {
+    setResults(batchResults);
+    setStatus("done");
+    addToast("info", `Loaded ${batchResults.length} document(s) from history.`);
+  }, [addToast]);
+
 
   // ── Download (standard summary) ───────────────────────────────────────────
   const downloadReport = useCallback(async () => {
@@ -188,7 +236,9 @@ export function useScanner() {
 
   return {
     files, results, status, uploadProgress, toasts, summary,
+    history, dbConnected, fetchHistory, handleClearHistory, handleDeleteBatch, loadBatch,
     addFiles, removeFile, clearAll, scan, downloadReport, downloadDetailedReport, removeToast,
   };
 }
+
 

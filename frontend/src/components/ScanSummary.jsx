@@ -10,46 +10,31 @@ import React from "react";
 function StatCard({ label, value, colour, bgColour, borderColour, description }) {
   return (
     <div
+      className="stat-card"
       style={{
-        flex:           1,
-        minWidth:       "140px",
-        padding:        "18px",
-        background:     bgColour,
-        border:         `1px solid ${borderColour}`,
-        borderRadius:   "var(--radius-md)",
-        textAlign:      "center",
-        animation:      "fadeIn 0.3s ease",
-        transition:     "transform 0.15s ease, border-color 0.15s ease",
-        cursor:         "default",
+        background:  bgColour,
+        border:      `1px solid ${borderColour}`,
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform  = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform  = "translateY(0)";
-      }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
     >
-      <div
-        style={{
-          fontSize:   "1.8rem",
-          fontWeight: 800,
-          color:      colour,
-          lineHeight: 1,
-          fontFamily: "var(--font-mono)",
-          marginBottom: "6px",
-        }}
-      >
+      <div style={{
+        fontSize:   "1.8rem",
+        fontWeight: 800,
+        color:      colour,
+        lineHeight: 1,
+        fontFamily: "var(--font-mono)",
+        marginBottom: "6px",
+      }}>
         {value}
       </div>
-      <div
-        style={{
-          fontSize:  "0.78rem",
-          color:     "var(--clr-text-primary)",
-          fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: "0.04em",
-        }}
-      >
+      <div style={{
+        fontSize:      "0.78rem",
+        color:         "var(--clr-text-primary)",
+        fontWeight:    700,
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+      }}>
         {label}
       </div>
       {description && (
@@ -60,6 +45,7 @@ function StatCard({ label, value, colour, bgColour, borderColour, description })
     </div>
   );
 }
+
 
 export function ScanSummary({ summary }) {
   if (!summary || summary.total === 0) return null;
@@ -94,7 +80,8 @@ export function ScanSummary({ summary }) {
       </div>
 
       {/* Stats grid */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+      <div className="stat-cards-grid">
+
         <StatCard
           label="Total Scanned"
           value={summary.total}
