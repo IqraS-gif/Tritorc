@@ -85,7 +85,7 @@ export default function App() {
 
           {/* Status pill + History button */}
           <div className="app-status-pill">
-            <span style={{
+            <span className="hide-on-mobile" style={{
               fontSize: "0.78rem",
               fontWeight: 600,
               color: "var(--clr-text-secondary)",

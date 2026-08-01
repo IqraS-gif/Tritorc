@@ -226,7 +226,8 @@ export function ResultsTable({ results }) {
                         color:        "var(--clr-text-primary)",
                         overflow:     "hidden",
                         textOverflow: "ellipsis",
-                        wordBreak:    "break-word",
+                        wordBreak:    "break-all",
+                        minWidth:     "120px",
                         lineHeight:   1.4,
                       }}
                     >

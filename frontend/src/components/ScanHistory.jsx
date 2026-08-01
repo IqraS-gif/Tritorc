@@ -272,7 +272,8 @@ export function ScanHistoryModal({
                                         fontSize:     "0.84rem",
                                         fontWeight:   600,
                                         color:        "var(--clr-text-primary)",
-                                        wordBreak:    "break-word",
+                                        wordBreak:    "break-all",
+                                        overflowWrap: "anywhere",
                                       }}>
                                         {doc.fileName}
                                       </span>

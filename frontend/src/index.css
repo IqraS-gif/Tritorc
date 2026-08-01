@@ -232,6 +232,7 @@ a:hover { color: var(--clr-primary-hover); }
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .badge-yes {
@@ -541,9 +542,10 @@ a:hover { color: var(--clr-primary-hover); }
 @media (max-width: 640px) {
   .container { padding: 0 var(--space-md); }
 
-  /* Header — shrink status pill text on very small screens */
+  /* Header — hide 20 keywords badge on mobile to prevent title truncation */
   .app-header-inner { height: 56px; }
   .app-logo-text h1 { font-size: 0.95rem; }
+  .hide-on-mobile { display: none !important; }
 
   /* Hero */
   .hero-section h1 { font-size: 1.45rem; }
@@ -569,18 +571,25 @@ a:hover { color: var(--clr-primary-hover); }
   /* Stat cards — 2 columns */
   .stat-card { flex: 1 1 calc(50% - 6px); min-width: 0; }
 
-  /* Table — switch to card layout on mobile */
-  .results-table-wrapper table { table-layout: auto; }
+  /* Table — horizontal scroll with minimum width to prevent text character squishing */
+  .results-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .results-table-wrapper table {
+    min-width: 580px !important;
+    table-layout: auto !important;
+  }
   .results-table-wrapper colgroup { display: none; }
 
-  /* Shrink table cells so they fit */
+  /* Table cells padding */
   .results-table-wrapper th,
   .results-table-wrapper td {
-    padding: 10px 10px;
+    padding: 10px 12px;
     font-size: 0.8rem;
   }
 
-  /* Hide "Matched Keywords" column on very small screens — show count + relevance only */
+  /* Hide "Matched Keywords" column on mobile — show count + relevance only */
   .col-keywords { display: none; }
 
   /* Footer */
