@@ -228,30 +228,29 @@ Defined in `backend/src/config/keywords.js`:
 
 ---
 
-### 1. 🎯 Strict Pattern Anchoring vs. False Positive Rejection
+### 🎯 How Strict Search is Implemented
 
-We use explicit word-boundary anchors `\b` and controlled optional delimiters `[-\s]?` to eliminate false positives.
+Strict search guarantees zero false-positive matches by enforcing precise boundaries in `backend/src/services/matcherService.js`:
 
-| Input Document Text | Target Keyword | Applied Pattern / Rule | Result | Reason |
-| :--- | :--- | :--- | :---: | :--- |
-| `torque wrench` | Torque wrench | `/\btorque\s+wrench(es)?\b/i` | ✅ MATCH | Exact phrase match |
-| `torque wrenches` | Torque wrench | `/\btorque\s+wrench(es)?\b/i` | ✅ MATCH | Plural morphological variant |
-| `pre-tensioning` | Pre-tensioning | `/\bpre[-\s]?tensioning\b/i` | ✅ MATCH | Hyphenated variant |
-| `pretensioning` | Pre-tensioning | `/\bpre[-\s]?tensioning\b/i` | ✅ MATCH | Single-word closed variant |
-| `peanut` | Nut splitter | `/\bnut\s+splitter\b/i` | ❌ REJECT | `\b` boundary prevents partial match on `peanut` |
-| `bolting_equipment` | Bolted joint | `/\bbolted\s+joint(s)?\b/i` | ❌ REJECT | Concept boundary mismatch |
+* **Word Boundary Anchoring (`\b`)**: Every regex pattern begins and ends with `\b` (word boundary). This ensures partial word matches are strictly rejected (e.g. searching for `nut` will **not** match `peanut` or `donut`).
+* **Controlled Delimiters (`[-\s]?`)**: Multi-word phrases and hyphenated terms specify optional spaces or hyphens (e.g. `pre-tensioning`, `pre tensioning`, `pretensioning`) without accepting arbitrary characters.
+* **Deterministic Text Normalization**: Raw extracted PDF/DOCX text is converted to lowercase and all line-breaks/spaces are collapsed to single spaces (`\s+` $\rightarrow$ `" "`) prior to pattern matching.
 
 ---
 
-### 2. 🔍 Fuzzy & Stemmed Variant Matching Matrix
+### 🔍 How Fuzzy & Stemmed Search is Implemented
 
-| Keyword Label | Pattern / Stemmer Logic | Supported Document Variants |
-| :--- | :--- | :--- |
-| **Hydraulic torque wrench** | `/\bhydraulic\s+torque\s+wrench(es|ing|ed)?\b/i` | `hydraulic torque wrench`, `hydraulic torque wrenches`, `hydraulic torque wrenching` |
-| **Bolt tensioner** | `/\bbolt\s+tension(er|ers|ing|ed|s)?\b/i` | `bolt tensioner`, `bolt tensioners`, `bolt tensioning`, `bolt tensioned` |
-| **Flange management** | `/\bflange\s+manag(ing|ement|er|ers)?\b/i` | `flange management`, `flange managing`, `flange manager` |
-| **Pre-tensioning** | `/\bpre[-\s]?tension(ing|ed|er|ers|s)?\b/i` | `pre-tensioning`, `pre tensioning`, `pretensioning`, `pretensioners` |
-| **Single-Word Fallback** | `natural.PorterStemmer.stem(token)` | Stems document tokens (`"calibrations"` $\rightarrow$ `"calibrat"`) for single-word targets |
+Fuzzy search maximizes keyword recall across word variations without relying on heavy AI cloud APIs:
+
+* **Regex Morphological Suffix Alternations**: Patterns in `backend/src/config/keywords.js` define regex suffix groups covering common English inflectional forms:
+  * **Plurals**: `wrench(es)?`, `tool(s)?`
+  * **Action Verbs & Participles**: `tighten(ing|ed)?`, `service(s|ing|d)?`
+  * **Agent Nouns & Suffixes**: `tension(er|ers|ing|ed|s)?`, `calibrat(ion|ing|ed|or|ors)?`
+* **Porter Stemmer Fallback (`natural` package)**:
+  * Single-word keywords that do not match explicit regex patterns are evaluated using `natural.PorterStemmer`.
+  * The engine builds a stemmed token set of the document text and stems single-word keywords (e.g. `"calibrations"` $\rightarrow$ `"calibrat"`). If the root stem matches, it is counted as a valid match.
+  * *(Multi-word phrases rely strictly on regex boundary patterns to avoid out-of-order stem false positives).*
+* **Unique Concept Deduplication**: Each keyword label is counted at most once per document, ensuring an accurate relevance verdict (`High Relevance`, `Possible`, `No Relevance`).
 
 ---
 
