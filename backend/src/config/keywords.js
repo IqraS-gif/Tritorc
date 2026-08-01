@@ -116,7 +116,7 @@ const KEYWORDS = [
   {
     label: "Pre-tensioning",
     patterns: [
-      /\bpre[-\s]tension(ing|ed|er|ers|s)?\b/,
+      /\bpre[-\s]?tension(ing|ed|er|ers|s)?\b/,
     ],
   },
   {

@@ -23,7 +23,7 @@ const KEYWORD_PATTERNS = {
   "Shutdown maintenance": /\bshut-?down\s+mainten(ance|ing|ed)?\b/gi,
   "Plant shutdown": /\bplant\s+shut(-?down|s)?\b/gi,
   "Bolted joint": /\bbolted\s+joint(s|ing|ed)?\b/gi,
-  "Pre-tensioning": /\bpre[-\s]tension(ing|ed|er|ers|s)?\b/gi,
+  "Pre-tensioning": /\bpre[-\s]?tension(ing|ed|er|ers|s)?\b/gi,
   "Gasket and flange management": /\bgasket\s+(&|and)\s+flange\s+management\b/gi,
   "Torque calibration": /\btorque\s+calibrat(ion|ing|ed|or|ors)?\b/gi,
   "Mechanical bolting": /\bmechanical\s+bolt(ing|ed|s)?\b/gi,
@@ -169,17 +169,69 @@ export function DocumentViewerModal({ isOpen, onClose, result }) {
     return { highlightedParts: parts, totalTextMatchesCount: matchCount };
   }, [rawText, matchedKeywords, selectedKeyword, searchTerm]);
 
-  const activeTotalMatches = isPdf && viewMode === "VISUAL" ? canvasMatchesCount : totalTextMatchesCount;
+  // Process DOCX HTML with highlights, selected keyword filtering, and active match tracking
+  const { highlightedDocxHtml, docxMatchesCount } = useMemo(() => {
+    if (!htmlContent) return { highlightedDocxHtml: "", docxMatchesCount: 0 };
 
-  // Scroll active match into view
+    const keywordsToHighlight = selectedKeyword === "ALL"
+      ? matchedKeywords
+      : matchedKeywords.filter((k) => k === selectedKeyword);
+
+    const regexSources = [];
+    keywordsToHighlight.forEach((kw) => {
+      if (KEYWORD_PATTERNS[kw]) {
+        regexSources.push(KEYWORD_PATTERNS[kw].source);
+      } else {
+        const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        regexSources.push(`\\b${escaped}\\b`);
+      }
+    });
+
+    if (searchTerm.trim()) {
+      const escaped = searchTerm.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      regexSources.push(escaped);
+    }
+
+    if (regexSources.length === 0) {
+      return { highlightedDocxHtml: htmlContent, docxMatchesCount: 0 };
+    }
+
+    const combinedRegex = new RegExp(`(${regexSources.join("|")})`, "gi");
+    let matchCount = 0;
+
+    // Replace matches only in HTML text nodes (avoiding HTML tag attributes)
+    const processedHtml = htmlContent.replace(
+      /(<[^>]+>)|([^<]+)/g,
+      (match, tag, textNode) => {
+        if (tag) return tag;
+        if (!textNode) return "";
+        return textNode.replace(combinedRegex, (m) => {
+          const currentIdx = matchCount++;
+          const isActive = currentIdx === activeMatchIdx;
+          const cls = `kw-highlight ${isActive ? "doc-match-active" : ""}`;
+          return `<mark class="${cls}" data-match-idx="${currentIdx}">${m}</mark>`;
+        });
+      }
+    );
+
+    return { highlightedDocxHtml: processedHtml, docxMatchesCount: matchCount };
+  }, [htmlContent, matchedKeywords, selectedKeyword, searchTerm, activeMatchIdx]);
+
+  const activeTotalMatches = isPdf && viewMode === "VISUAL"
+    ? canvasMatchesCount
+    : (!isPdf && viewMode === "VISUAL" && htmlContent)
+    ? docxMatchesCount
+    : totalTextMatchesCount;
+
+  // Scroll active match into view across all modes
   useEffect(() => {
-    if (viewMode === "TEXT" && totalTextMatchesCount > 0 && contentRef.current) {
+    if (activeTotalMatches > 0 && contentRef.current) {
       const activeEl = contentRef.current.querySelector(`.doc-match-active`);
       if (activeEl) {
         activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [activeMatchIdx, totalTextMatchesCount, viewMode]);
+  }, [activeMatchIdx, activeTotalMatches, viewMode, selectedKeyword, searchTerm]);
 
   const handleNext = () => {
     if (activeTotalMatches > 0) {
@@ -200,19 +252,6 @@ export function DocumentViewerModal({ isOpen, onClose, result }) {
       setTimeout(() => setCopied(false), 2000);
     }
   };
-
-  // Process DOCX HTML with highlights
-  const highlightedDocxHtml = useMemo(() => {
-    if (!htmlContent) return "";
-    let processed = htmlContent;
-
-    matchedKeywords.forEach((kw) => {
-      const pattern = KEYWORD_PATTERNS[kw] || new RegExp(`\\b${kw}\\b`, "gi");
-      processed = processed.replace(pattern, (match) => `<mark class="kw-highlight">${match}</mark>`);
-    });
-
-    return processed;
-  }, [htmlContent, matchedKeywords]);
 
   if (!isOpen || !result) return null;
 
@@ -385,7 +424,21 @@ export function DocumentViewerModal({ isOpen, onClose, result }) {
               />
             ) : (
               <div className="doc-text-container">
-                {rawText || "No text available."}
+                {highlightedParts.map((part, i) => {
+                  if (!part.isMatch) {
+                    return <React.Fragment key={i}>{part.text}</React.Fragment>;
+                  }
+                  const isActive = part.matchIdx === activeMatchIdx;
+                  return (
+                    <mark
+                      key={i}
+                      className={`kw-highlight ${isActive ? "doc-match-active" : ""}`}
+                      data-match-idx={part.matchIdx}
+                    >
+                      {part.text}
+                    </mark>
+                  );
+                })}
               </div>
             )
           )}

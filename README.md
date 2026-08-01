@@ -186,11 +186,23 @@ Defined in `backend/src/config/keywords.js`:
 
 ## 🔬 Keyword Matching Logic
 
-1. **Text Normalization**: Converts text to lowercase and collapses whitespace.
-2. **Regex Anchoring**: Uses word boundary anchors (`\b`) to eliminate false positives.
-3. **Plural & Variant Coverage**: Matches variations like `tensioner`, `tensioning`, `tensioned`, `wrenches`, etc.
-4. **Porter Stemmer**: Applies stemming to single-word targets for maximum recall.
-5. **Deduplication**: Ensures each keyword label is counted once per document.
+The matching engine in `backend/src/services/matcherService.js` uses a dual-layer approach combining **Strict Pattern Anchoring** and **Deterministic Fuzzy/Stemmed Matching**:
+
+### 1. 🎯 Strict Pattern Matching (Preventing False Positives)
+* **Word Boundary Anchors (`\b`)**: Every search pattern is wrapped with word boundary anchors `\b` at both ends (e.g. `/\btorque\s+wrench\b/`). This guarantees that partial word substrings do not trigger false positive matches (e.g. `nut` will not match `peanut` or `donut`).
+* **Controlled Delimiters (`[-\s]?`)**: Multi-word compounds and hyphenated terms use explicit, controlled whitespace/hyphen alternations (e.g. `/\bpre[-\s]?tensioning\b/`). This matches `pre-tensioning`, `pre tensioning`, or `pretensioning` while rejecting random character insertions.
+* **Exact Case-Insensitive Normalization**: Document text is lowercased and collapsed (`\s+` $\rightarrow$ `" "`) prior to matching to maintain deterministic evaluation across multi-line PDF layout buffers.
+
+### 2. 🔍 Fuzzy & Stemmed Keyword Matching (Maximizing Recall)
+* **Regex Morphological Suffix Alternations**: Keywords in `backend/src/config/keywords.js` define regex suffix groups covering common English inflectional forms:
+  * **Plurals**: `wrench(es)?`, `tool(s)?`
+  * **Action Verbs & Participles**: `tighten(ing|ed)?`, `service(s|ing|d)?`
+  * **Agent Nouns & Suffixes**: `tension(er|ers|ing|ed|s)?`, `calibrat(ion|ing|ed|or|ors)?`
+* **Porter Stemmer Fallback (`natural` package)**:
+  * For single-word keywords that do not match the explicit regex patterns, the engine computes a stemmed token Set of the document using `natural.PorterStemmer`.
+  * Single-word keywords are stemmed (e.g. `"calibrations"` $\rightarrow$ `"calibrat"`) and cross-referenced against the document's stemmed index set.
+  * *(Multi-word phrases rely strictly on regex boundary patterns to prevent false positive matches from out-of-order word stems).*
+* **Unique Keyword Deduplication**: Ensures each keyword concept is counted at most once per document, regardless of how many times variants appear in the text.
 
 ---
 

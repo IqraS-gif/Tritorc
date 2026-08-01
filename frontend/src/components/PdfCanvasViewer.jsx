@@ -26,7 +26,7 @@ const KEYWORD_PATTERNS = {
   "Shutdown maintenance": /\bshut-?down\s+mainten(ance|ing|ed)?\b/gi,
   "Plant shutdown": /\bplant\s+shut(-?down|s)?\b/gi,
   "Bolted joint": /\bbolted\s+joint(s|ing|ed)?\b/gi,
-  "Pre-tensioning": /\bpre[-\s]tension(ing|ed|er|ers|s)?\b/gi,
+  "Pre-tensioning": /\bpre[-\s]?tension(ing|ed|er|ers|s)?\b/gi,
   "Gasket and flange management": /\bgasket\s+(&|and)\s+flange\s+management\b/gi,
   "Torque calibration": /\btorque\s+calibrat(ion|ing|ed|or|ors)?\b/gi,
   "Mechanical bolting": /\bmechanical\s+bolt(ing|ed|s)?\b/gi,
