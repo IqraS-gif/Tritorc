@@ -184,25 +184,74 @@ Defined in `backend/src/config/keywords.js`:
 
 ---
 
-## 🔬 Keyword Matching Logic
+## 🔬 Keyword Matching Pipeline & Logic
 
-The matching engine in `backend/src/services/matcherService.js` uses a dual-layer approach combining **Strict Pattern Anchoring** and **Deterministic Fuzzy/Stemmed Matching**:
+```
+   ┌──────────────────────────────────────────────────────────┐
+   │        Uploaded Tender Document (PDF / DOCX)             │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                                ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │ 1. Text Normalization: Lowercase + Collapse Whitespace   │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                                ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │ 2. Stage 1: Strict Word-Boundary Regex Match (\b...\b)   │
+   │    Checks exact patterns & morphological suffix variants │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                 ┌──────────────┴──────────────┐
+                 │                             │
+        Match Found? (YES)            Match Found? (NO)
+                 │                             │
+                 ▼                             ▼
+   ┌───────────────────────────┐ ┌───────────────────────────┐
+   │ Add to Unique Matched Set │ │ Single-Word Keyword?      │
+   └───────────────────────────┘ └─────────────┬─────────────┘
+                                               │
+                                       ┌───────┴───────┐
+                                       │ (YES)         │ (NO)
+                                       ▼               ▼
+                         ┌──────────────────┐ ┌──────────────────┐
+                         │ Stage 2: Porter  │ │ Skip (Multi-word │
+                         │ Stemmer Fallback │ │ Regex Anchored)  │
+                         └─────────┬────────┘ └──────────────────┘
+                                   │
+                                   ▼
+                   ┌────────────────────────────────┐
+                   │ Compute Relevance Verdict &    │
+                   │ Generate Excel / Visual View   │
+                   └────────────────────────────────┘
+```
 
-### 1. 🎯 Strict Pattern Matching (Preventing False Positives)
-* **Word Boundary Anchors (`\b`)**: Every search pattern is wrapped with word boundary anchors `\b` at both ends (e.g. `/\btorque\s+wrench\b/`). This guarantees that partial word substrings do not trigger false positive matches (e.g. `nut` will not match `peanut` or `donut`).
-* **Controlled Delimiters (`[-\s]?`)**: Multi-word compounds and hyphenated terms use explicit, controlled whitespace/hyphen alternations (e.g. `/\bpre[-\s]?tensioning\b/`). This matches `pre-tensioning`, `pre tensioning`, or `pretensioning` while rejecting random character insertions.
-* **Exact Case-Insensitive Normalization**: Document text is lowercased and collapsed (`\s+` $\rightarrow$ `" "`) prior to matching to maintain deterministic evaluation across multi-line PDF layout buffers.
+---
 
-### 2. 🔍 Fuzzy & Stemmed Keyword Matching (Maximizing Recall)
-* **Regex Morphological Suffix Alternations**: Keywords in `backend/src/config/keywords.js` define regex suffix groups covering common English inflectional forms:
-  * **Plurals**: `wrench(es)?`, `tool(s)?`
-  * **Action Verbs & Participles**: `tighten(ing|ed)?`, `service(s|ing|d)?`
-  * **Agent Nouns & Suffixes**: `tension(er|ers|ing|ed|s)?`, `calibrat(ion|ing|ed|or|ors)?`
-* **Porter Stemmer Fallback (`natural` package)**:
-  * For single-word keywords that do not match the explicit regex patterns, the engine computes a stemmed token Set of the document using `natural.PorterStemmer`.
-  * Single-word keywords are stemmed (e.g. `"calibrations"` $\rightarrow$ `"calibrat"`) and cross-referenced against the document's stemmed index set.
-  * *(Multi-word phrases rely strictly on regex boundary patterns to prevent false positive matches from out-of-order word stems).*
-* **Unique Keyword Deduplication**: Ensures each keyword concept is counted at most once per document, regardless of how many times variants appear in the text.
+### 1. 🎯 Strict Pattern Anchoring vs. False Positive Rejection
+
+We use explicit word-boundary anchors `\b` and controlled optional delimiters `[-\s]?` to eliminate false positives.
+
+| Input Document Text | Target Keyword | Applied Pattern / Rule | Result | Reason |
+| :--- | :--- | :--- | :---: | :--- |
+| `torque wrench` | Torque wrench | `/\btorque\s+wrench(es)?\b/i` | ✅ MATCH | Exact phrase match |
+| `torque wrenches` | Torque wrench | `/\btorque\s+wrench(es)?\b/i` | ✅ MATCH | Plural morphological variant |
+| `pre-tensioning` | Pre-tensioning | `/\bpre[-\s]?tensioning\b/i` | ✅ MATCH | Hyphenated variant |
+| `pretensioning` | Pre-tensioning | `/\bpre[-\s]?tensioning\b/i` | ✅ MATCH | Single-word closed variant |
+| `peanut` | Nut splitter | `/\bnut\s+splitter\b/i` | ❌ REJECT | `\b` boundary prevents partial match on `peanut` |
+| `bolting_equipment` | Bolted joint | `/\bbolted\s+joint(s)?\b/i` | ❌ REJECT | Concept boundary mismatch |
+
+---
+
+### 2. 🔍 Fuzzy & Stemmed Variant Matching Matrix
+
+| Keyword Label | Pattern / Stemmer Logic | Supported Document Variants |
+| :--- | :--- | :--- |
+| **Hydraulic torque wrench** | `/\bhydraulic\s+torque\s+wrench(es|ing|ed)?\b/i` | `hydraulic torque wrench`, `hydraulic torque wrenches`, `hydraulic torque wrenching` |
+| **Bolt tensioner** | `/\bbolt\s+tension(er|ers|ing|ed|s)?\b/i` | `bolt tensioner`, `bolt tensioners`, `bolt tensioning`, `bolt tensioned` |
+| **Flange management** | `/\bflange\s+manag(ing|ement|er|ers)?\b/i` | `flange management`, `flange managing`, `flange manager` |
+| **Pre-tensioning** | `/\bpre[-\s]?tension(ing|ed|er|ers|s)?\b/i` | `pre-tensioning`, `pre tensioning`, `pretensioning`, `pretensioners` |
+| **Single-Word Fallback** | `natural.PorterStemmer.stem(token)` | Stems document tokens (`"calibrations"` $\rightarrow$ `"calibrat"`) for single-word targets |
 
 ---
 
